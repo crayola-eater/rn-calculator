@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { SafeAreaView, StyleSheet, Switch, Text } from "react-native";
-import { myColors } from "./src/styles/Colors";
-import { ThemeContext } from "./src/context/ThemeContext";
+import { SafeAreaView, StyleSheet, Switch } from "react-native";
+import { Keyboard } from "./src/components";
+import { colors, ThemeContext } from "./src/config";
 
 export default function App() {
   const [theme, setTheme] = useState("light");
@@ -18,6 +18,8 @@ export default function App() {
           value={theme === "dark"}
           onValueChange={() => setTheme(theme === "light" ? "dark" : "light")}
         />
+
+        <Keyboard />
       </SafeAreaView>
     </ThemeContext.Provider>
   );
@@ -26,7 +28,7 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: myColors.light,
+    backgroundColor: colors.light,
     alignItems: "center",
     justifyContent: "flex-start",
   },
