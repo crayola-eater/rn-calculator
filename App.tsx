@@ -5,18 +5,22 @@ import { colors, ThemeContext } from "./src/config";
 
 export default function App() {
   const [theme, setTheme] = useState("light");
+  const isLight = theme === "light" ? true : false;
+
   return (
     <ThemeContext.Provider value={theme}>
       <SafeAreaView
         style={
-          theme === "light"
+          isLight
             ? styles.container
             : [styles.container, { backgroundColor: "black" }]
         }
       >
         <Switch
           value={theme === "dark"}
-          onValueChange={() => setTheme(theme === "light" ? "dark" : "light")}
+          trackColor={{ false: "#767577", true: "#81b0ff" }}
+          thumbColor={isLight ? "#f5dd4b" : "#f4f3f4"}
+          onValueChange={() => setTheme(isLight ? "dark" : "light")}
         />
 
         <Keyboard />

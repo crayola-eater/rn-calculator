@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { View, Text } from "react-native";
 import { colors, Styles } from "../config";
-import { Button } from "./index";
+import Button from "./Button";
 
 export default function Keyboard() {
   const [firstNumber, setFirstNumber] = useState("");
