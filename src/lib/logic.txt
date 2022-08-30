@@ -1,0 +1,25 @@
+values stored:
+→ display: string
+→ operator: string
+→ results: number
+→ equation: string
+
+☞☞  ON NUMBER CLICK
+    → update display: display += value of the button
+
+☞☞  ON EQUAL
+    → no operator
+        - update results = what is on display
+
+    → operator
+        results = results + operator + whats on display
+        
+
+☞☞  ON OPERATOR CLICK
+→ add left value to equation
+→ add operator
+→ wait for right value
+
+if equation has something
+→ solve that
+→ update value and add new operator

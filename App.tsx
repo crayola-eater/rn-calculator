@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { SafeAreaView, StyleSheet, Switch } from "react-native";
-import { Keyboard } from "./src/components";
+import { Pad } from "./src/components";
 import { colors, ThemeContext } from "./src/config";
 
 export default function App() {
@@ -23,7 +23,7 @@ export default function App() {
           onValueChange={() => setTheme(isLight ? "dark" : "light")}
         />
 
-        <Keyboard />
+        <Pad />
       </SafeAreaView>
     </ThemeContext.Provider>
   );
