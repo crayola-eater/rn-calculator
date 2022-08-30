@@ -21,14 +21,26 @@ export default function Pad() {
     equation: "",
   });
 
+  const roundedValue = (value: number, digits: number) =>
+    Math.round(value * 10 ** digits) / 10 ** digits;
+
   const handleFunctions = (type: string, value: any) => {
-    let tempValue: number = Number(values.display);
+    let tempValue: number = values.display
+      ? Number(values.display)
+      : values.result;
+    let displayOperator: string;
+    console.log(value);
 
     switch (type) {
       case "number":
         setValues({ ...values, display: values.display.toString() + value });
         break;
       case "operator":
+        displayOperator =
+          ((value === "+" || value === "-") && value) ||
+          (value === "*" && "×") ||
+          (value === "/" && "÷");
+
         if (typeof values.operator == "undefined") {
           setValues({
             ...values,
@@ -36,21 +48,25 @@ export default function Pad() {
             display: "",
             waitingForOperand: false,
             result: tempValue,
-            equation: tempValue + value,
+            equation: roundedValue(tempValue, 3) + displayOperator,
           });
         } else {
-          handleEquation(tempValue, value);
+          handleEquation(tempValue, value, displayOperator);
         }
 
         break;
       case "equal":
         handleEquation(tempValue);
+
         break;
       case "clear":
         onClear();
         break;
       case "+/-":
-        console.log("hello----");
+        values.display
+          ? setValues({ ...values, display: (-tempValue).toString() })
+          : setValues({ ...values, result: -values.result });
+        console.log("===", values);
         break;
       case "percentage":
         console.log("====================================");
@@ -58,7 +74,11 @@ export default function Pad() {
     }
   };
 
-  const handleEquation = (tempValue: number, operator?: Operator) => {
+  const handleEquation = (
+    tempValue: number,
+    operator?: Operator,
+    displayOperator?: string
+  ) => {
     switch (values.operator) {
       case "+":
         setValues({
@@ -67,7 +87,10 @@ export default function Pad() {
           result: values.result + tempValue,
           operator: operator,
           waitingForOperand: true,
-          equation: values.equation + tempValue + operator,
+          equation:
+            values.equation +
+            tempValue +
+            (operator !== undefined ? displayOperator : ""),
         });
         break;
       case "-":
@@ -77,7 +100,10 @@ export default function Pad() {
           result: values.result - tempValue,
           operator: operator,
           waitingForOperand: true,
-          equation: values.equation + tempValue + operator,
+          equation:
+            values.equation +
+            tempValue +
+            (operator !== undefined ? displayOperator : ""),
         });
         break;
       case "*":
@@ -87,7 +113,10 @@ export default function Pad() {
           result: values.result * tempValue,
           operator: operator,
           waitingForOperand: true,
-          equation: values.equation + tempValue + operator,
+          equation:
+            values.equation +
+            tempValue +
+            (operator !== undefined ? displayOperator : ""),
         });
         break;
       case "/":
@@ -97,24 +126,24 @@ export default function Pad() {
           result: values.result / tempValue,
           operator: operator,
           waitingForOperand: true,
-          equation: values.equation + tempValue + operator,
+          equation:
+            values.equation +
+            tempValue +
+            (operator !== undefined ? displayOperator : ""),
         });
-        break;
-      default:
         break;
     }
   };
 
   useEffect(() => {
-    console.log(values.equation);
-    console.log(values.result);
-    // values.waitingForOperand && handleOperator();
+    console.log(values);
   }, [values]);
 
   const onClear = () => {
     setValues({
       ...values,
       display: "",
+      operator: undefined,
       waitingForOperand: true,
       result: 0,
       equation: "",
@@ -147,16 +176,16 @@ export default function Pad() {
   return (
     <View style={[styles.container, styles.viewBottom]}>
       <View style={styles.display}>
+        <Text style={styles.resultText}>{values.equation}</Text>
+      </View>
+      <View style={styles.display}>
         <Text
           style={styles.equationText}
           numberOfLines={1}
           ellipsizeMode="head"
         >
-          {values.result}
+          {values.display ? values.display : roundedValue(values.result, 2)}
         </Text>
-      </View>
-      <View style={styles.display}>
-        <Text style={styles.resultText}>{values.display}</Text>
       </View>
       {digits.map((digit: any, index: number) => (
         <TouchableOpacity
