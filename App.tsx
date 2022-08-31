@@ -21,6 +21,7 @@ export default function App() {
           trackColor={{ false: "#767577", true: "#81b0ff" }}
           thumbColor={isLight ? "#f5dd4b" : "#f4f3f4"}
           onValueChange={() => setTheme(isLight ? "dark" : "light")}
+          style={styles.switch}
         />
 
         <Pad />
@@ -35,5 +36,10 @@ const styles = StyleSheet.create({
     backgroundColor: colors.light,
     alignItems: "center",
     justifyContent: "flex-start",
+  },
+
+  switch: {
+    alignSelf: "flex-end",
+    margin: 25,
   },
 });

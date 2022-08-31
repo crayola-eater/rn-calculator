@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, Text, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import { StyleSheet } from "react-native";
 import { colors } from "../config";
 import { Operator } from "../lib/types";
@@ -26,14 +26,23 @@ export default function Pad() {
 
   const handleFunctions = (type: string, value: any) => {
     let tempValue: number = values.display
-      ? Number(values.display)
+      ? values.display.endsWith("%")
+        ? parseFloat(values.display) / 100
+        : Number(values.display)
       : values.result;
     let displayOperator: string;
-    console.log(value);
 
     switch (type) {
       case "number":
         setValues({ ...values, display: values.display.toString() + value });
+
+        if (values.waitingForOperand) {
+          setValues({
+            ...values,
+            display: values.display.toString() + value,
+            waitingForOperand: false,
+          });
+        }
         break;
       case "operator":
         displayOperator =
@@ -50,14 +59,23 @@ export default function Pad() {
             result: tempValue,
             equation: roundedValue(tempValue, 3) + displayOperator,
           });
+        } else if (values.waitingForOperand) {
+          let newEquation: string = values.equation.replace(/[+-×÷]$/g, "");
+          setValues({
+            ...values,
+            display: "",
+            operator: value,
+            equation: newEquation + displayOperator,
+          });
         } else {
           handleEquation(tempValue, value, displayOperator);
         }
 
         break;
       case "equal":
-        handleEquation(tempValue);
-
+        !values.equation && values.operator === undefined
+          ? setValues({ ...values, result: tempValue })
+          : handleEquation(tempValue);
         break;
       case "clear":
         onClear();
@@ -66,10 +84,9 @@ export default function Pad() {
         values.display
           ? setValues({ ...values, display: (-tempValue).toString() })
           : setValues({ ...values, result: -values.result });
-        console.log("===", values);
         break;
       case "percentage":
-        console.log("====================================");
+        setValues({ ...values, display: tempValue.toString() + "%" });
         break;
     }
   };
@@ -176,7 +193,10 @@ export default function Pad() {
   return (
     <View style={[styles.container, styles.viewBottom]}>
       <View style={styles.display}>
-        <Text style={styles.resultText}>{values.equation}</Text>
+        <Text style={styles.resultText}>
+          {values.equation}
+          {values.display}
+        </Text>
       </View>
       <View style={styles.display}>
         <Text
@@ -184,7 +204,7 @@ export default function Pad() {
           numberOfLines={1}
           ellipsizeMode="head"
         >
-          {values.display ? values.display : roundedValue(values.result, 2)}
+          {roundedValue(values.result, 2)}
         </Text>
       </View>
       {digits.map((digit: any, index: number) => (
