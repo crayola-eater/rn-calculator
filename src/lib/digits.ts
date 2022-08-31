@@ -1,4 +1,4 @@
-export let digits: any = [
+export let digits = [
   { type: "clear", value: "C", title: "AC" },
   { type: "+/-", value: "+/-", title: "±" },
   { type: "percentage", value: "%", title: "﹪" },
@@ -19,4 +19,6 @@ export let digits: any = [
   { type: "number", value: 0, title: "0" },
   { type: "delete", value: "del", title: "⌫" },
   { type: "equal", value: "=", title: "=" },
-];
+] as const;
+
+export type InputItem = typeof digits[number];
