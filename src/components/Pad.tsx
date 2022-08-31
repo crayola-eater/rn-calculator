@@ -1,16 +1,12 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import { StyleSheet } from "react-native";
 import { colors } from "../config";
-import { Operator } from "../lib/types";
+import { digits } from "../lib/digits";
+import normalize from "../lib/normalize";
+import { Operator, valuesState } from "../lib/types";
 
-type valuesState = {
-  display: string;
-  waitingForOperand: boolean;
-  result: number;
-  operator: Operator | undefined;
-  equation: string;
-};
+
 
 export default function Pad() {
   const [values, setValues] = useState<valuesState>({
@@ -24,7 +20,7 @@ export default function Pad() {
   const roundedValue = (value: number, digits: number) =>
     Math.round(value * 10 ** digits) / 10 ** digits;
 
-  const handleFunctions = (type: string, value: any) => {
+  const handleAllFunctions = (type: string, value: any) => {
     let tempValue: number = values.display
       ? values.display.endsWith("%")
         ? parseFloat(values.display) / 100
@@ -70,7 +66,6 @@ export default function Pad() {
         } else {
           handleEquation(tempValue, value, displayOperator);
         }
-
         break;
       case "equal":
         !values.equation && values.operator === undefined
@@ -78,7 +73,14 @@ export default function Pad() {
           : handleEquation(tempValue);
         break;
       case "clear":
-        onClear();
+        setValues({
+          ...values,
+          display: "",
+          operator: undefined,
+          waitingForOperand: true,
+          result: 0,
+          equation: "",
+        });
         break;
       case "+/-":
         values.display
@@ -96,104 +98,45 @@ export default function Pad() {
     operator?: Operator,
     displayOperator?: string
   ) => {
+    
+    const handleOperator = (result: number) => {
+      setValues({
+        ...values,
+        display: "",
+        result: result,
+        operator: operator,
+        waitingForOperand: true,
+        equation:
+          values.equation +
+          tempValue +
+          (operator !== undefined ? displayOperator : ""),
+      });
+    };
+
     switch (values.operator) {
       case "+":
-        setValues({
-          ...values,
-          display: "",
-          result: values.result + tempValue,
-          operator: operator,
-          waitingForOperand: true,
-          equation:
-            values.equation +
-            tempValue +
-            (operator !== undefined ? displayOperator : ""),
-        });
+        handleOperator(values.result + tempValue);
         break;
       case "-":
-        setValues({
-          ...values,
-          display: "",
-          result: values.result - tempValue,
-          operator: operator,
-          waitingForOperand: true,
-          equation:
-            values.equation +
-            tempValue +
-            (operator !== undefined ? displayOperator : ""),
-        });
+        handleOperator(values.result - tempValue);
         break;
       case "*":
-        setValues({
-          ...values,
-          display: "",
-          result: values.result * tempValue,
-          operator: operator,
-          waitingForOperand: true,
-          equation:
-            values.equation +
-            tempValue +
-            (operator !== undefined ? displayOperator : ""),
-        });
+        handleOperator(values.result * tempValue);
         break;
       case "/":
-        setValues({
-          ...values,
-          display: "",
-          result: values.result / tempValue,
-          operator: operator,
-          waitingForOperand: true,
-          equation:
-            values.equation +
-            tempValue +
-            (operator !== undefined ? displayOperator : ""),
-        });
+        handleOperator(values.result / tempValue);
         break;
     }
   };
 
-  useEffect(() => {
-    console.log(values);
-  }, [values]);
-
-  const onClear = () => {
-    setValues({
-      ...values,
-      display: "",
-      operator: undefined,
-      waitingForOperand: true,
-      result: 0,
-      equation: "",
-    });
-  };
-
-  let digits: any = [
-    { type: "clear", value: "C", title: "AC" },
-    { type: "+/-", value: "+/-", title: "±" },
-    { type: "percentage", value: "%", title: "﹪" },
-    { type: "operator", value: "/", title: "÷" },
-    { type: "number", value: 7, title: "7" },
-    { type: "number", value: 8, title: "8" },
-    { type: "number", value: 9, title: "9" },
-    { type: "operator", value: "*", title: "×" },
-    { type: "number", value: 4, title: "4" },
-    { type: "number", value: 5, title: "5" },
-    { type: "number", value: 6, title: "6" },
-    { type: "operator", value: "-", title: "-" },
-    { type: "number", value: 1, title: "1" },
-    { type: "number", value: 2, title: "2" },
-    { type: "number", value: 3, title: "3" },
-    { type: "operator", value: "+", title: "+" },
-    { type: "number", value: ".", title: "." },
-    { type: "number", value: 0, title: "0" },
-    { type: "delete", value: "del", title: "⌫" },
-    { type: "equal", value: "=", title: "=" },
-  ];
-
   return (
     <View style={[styles.container, styles.viewBottom]}>
       <View style={styles.display}>
-        <Text style={styles.resultText}>
+        <Text
+          ellipsizeMode="head"
+          numberOfLines={2}
+          style={[styles.resultText, { fontSize: normalize(50) }]}
+        >
           {values.equation}
           {values.display}
         </Text>
@@ -218,7 +161,7 @@ export default function Pad() {
               : styles.accent,
             styles.digits,
           ]}
-          onPress={() => handleFunctions(digit.type, digit.value)}
+          onPress={() => handleAllFunctions(digit.type, digit.value)}
         >
           <Text
             style={
@@ -286,7 +229,6 @@ const styles = StyleSheet.create({
   },
 
   resultText: {
-    fontSize: 70,
     color: colors.gray,
     fontWeight: "300",
     alignSelf: "flex-end",
