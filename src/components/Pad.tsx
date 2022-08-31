@@ -3,10 +3,9 @@ import { Text, TouchableOpacity, View } from "react-native";
 import { StyleSheet } from "react-native";
 import { colors } from "../config";
 import { digits } from "../lib/digits";
+import { roundedValue } from "../lib/functions";
 import normalize from "../lib/normalize";
 import { Operator, valuesState } from "../lib/types";
-
-
 
 export default function Pad() {
   const [values, setValues] = useState<valuesState>({
@@ -16,9 +15,6 @@ export default function Pad() {
     operator: undefined,
     equation: "",
   });
-
-  const roundedValue = (value: number, digits: number) =>
-    Math.round(value * 10 ** digits) / 10 ** digits;
 
   const handleAllFunctions = (type: string, value: any) => {
     let tempValue: number = values.display
@@ -98,7 +94,6 @@ export default function Pad() {
     operator?: Operator,
     displayOperator?: string
   ) => {
-    
     const handleOperator = (result: number) => {
       setValues({
         ...values,
